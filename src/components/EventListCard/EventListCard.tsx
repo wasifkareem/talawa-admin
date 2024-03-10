@@ -17,6 +17,8 @@ import { useHistory } from 'react-router-dom';
 interface InterfaceEventListCardProps {
   key: string;
   id: string;
+  userId: string | undefined;
+  creatorId: string;
   eventLocation: string;
   eventName: string;
   eventDescription: string;
@@ -71,7 +73,6 @@ function eventListCard(props: InterfaceEventListCardProps): JSX.Element {
       startTime: props.startTime?.split('.')[0] || '08:00:00',
       endTime: props.endTime?.split('.')[0] || '18:00:00',
     });
-
     setAllDayChecked(props.allDay);
     setRecurringChecked(props.recurring);
     setPublicChecked(props.isPublic);
@@ -139,10 +140,17 @@ function eventListCard(props: InterfaceEventListCardProps): JSX.Element {
   const openEventDashboard = (): void => {
     history.push(`/event/${props.id}`);
   };
-
   return (
     <>
-      <div className={styles.cards} onClick={showViewModal} data-testid="card">
+      <div
+        className={styles.cards}
+        style={{
+          backgroundColor:
+            props.creatorId === props.userId ? '#d9d9d9' : '#a8d5ff',
+        }}
+        onClick={showViewModal}
+        data-testid="card"
+      >
         <div className={styles.dispflex}>
           <h2 className={styles.eventtitle}>
             {props.eventName ? <>{props.eventName}</> : <>Dogs Care</>}

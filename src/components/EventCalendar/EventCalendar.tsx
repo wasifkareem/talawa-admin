@@ -4,8 +4,8 @@ import Button from 'react-bootstrap/Button';
 import React, { useState, useEffect } from 'react';
 import styles from './EventCalendar.module.css';
 import { ChevronLeft, ChevronRight } from '@mui/icons-material';
-import { Dropdown } from 'react-bootstrap';
 import CurrentHourIndicator from 'components/CurrentHourIndicator/CurrentHourIndicator';
+import Holidays from 'date-holidays';
 
 interface InterfaceEvent {
   _id: string;
@@ -21,6 +21,7 @@ interface InterfaceEvent {
   registrants?: InterfaceIEventAttendees[];
   isPublic: boolean;
   isRegisterable: boolean;
+  creator: { _id: string };
 }
 
 interface InterfaceCalendarProps {
@@ -28,6 +29,7 @@ interface InterfaceCalendarProps {
   orgData?: InterfaceIOrgList;
   userRole?: string;
   userId?: string;
+  viewType?: string;
 }
 
 enum Status {
@@ -55,15 +57,26 @@ interface InterfaceIEventAttendees {
 
 interface InterfaceIOrgList {
   admins: { _id: string }[];
+  members: { _id: string }[];
 }
+
 const Calendar: React.FC<InterfaceCalendarProps> = ({
-  eventData,
+  eventData, //array
   orgData,
   userRole,
   userId,
+  viewType,
 }) => {
   const [selectedDate] = useState<Date | null>(null);
-  const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const weekdays = [
+    'Sunday',
+    'Monday',
+    'Tueday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+  ];
   const months = [
     'January',
     'February',
@@ -104,16 +117,20 @@ const Calendar: React.FC<InterfaceCalendarProps> = ({
     '10 PM',
     '11 PM',
   ];
-
-  const today = new Date();
+  const hd = new Holidays('US');
+  const holiday = hd.getHolidays();
+  console.log(holiday);
+  // console.log(holiday);
+  const today = new Date('Wed Jun 19 2024 09:30:00 GMT+0530');
+  const check: any = hd.isHoliday(today);
+  console.log(check.map((d: any) => d.name));
   const [currentDate, setCurrentDate] = useState(today.getDate());
   const [currentMonth, setCurrentMonth] = useState(today.getMonth());
   const [currentYear, setCurrentYear] = useState(today.getFullYear());
   const [events, setEvents] = useState<InterfaceEvent[] | null>(null);
+  const [userEvents, setUserEvents] = useState<InterfaceEvent[] | null>(null);
   const [expanded, setExpanded] = useState<number>(-1);
   const [windowWidth, setWindowWidth] = useState<number>(window.screen.width);
-  const [viewType, setViewType] = useState<string>(ViewType.MONTH);
-
   useEffect(() => {
     function handleResize(): void {
       setWindowWidth(window.screen.width);
@@ -129,6 +146,7 @@ const Calendar: React.FC<InterfaceCalendarProps> = ({
     userId?: string,
   ): InterfaceEvent[] => {
     const data: InterfaceEvent[] = [];
+
     if (userRole === Role.SUPERADMIN) return eventData;
     // Hard to test all the cases
     /* istanbul ignore next */
@@ -163,11 +181,6 @@ const Calendar: React.FC<InterfaceCalendarProps> = ({
     const data = filterData(eventData, orgData, userRole, userId);
     setEvents(data);
   }, [eventData, orgData, userRole, userId]);
-
-  const handleChangeView = (item: any): void => {
-    setViewType(item);
-  };
-
   const handlePrevMonth = (): void => {
     if (currentMonth === 0) {
       setCurrentMonth(11);
@@ -226,19 +239,12 @@ const Calendar: React.FC<InterfaceCalendarProps> = ({
     }
   };
 
-  const handleTodayButton = (): void => {
-    setCurrentYear(today.getFullYear());
-    setCurrentMonth(today.getMonth());
-    setCurrentDate(today.getDate());
-  };
-
   const timezoneString = `UTC${
     new Date().getTimezoneOffset() > 0 ? '-' : '+'
   }${String(Math.floor(Math.abs(new Date().getTimezoneOffset()) / 60)).padStart(
     2,
     '0',
   )}:${String(Math.abs(new Date().getTimezoneOffset()) % 60).padStart(2, '0')}`;
-
   const renderHours = (): JSX.Element => {
     const toggleExpand = (index: number): void => {
       if (expanded === index) {
@@ -247,7 +253,6 @@ const Calendar: React.FC<InterfaceCalendarProps> = ({
         setExpanded(index);
       }
     };
-
     const allDayEventsList: any = events
       ?.filter((datas) => {
         const currDate = new Date(currentYear, currentMonth, currentDate);
@@ -261,6 +266,9 @@ const Calendar: React.FC<InterfaceCalendarProps> = ({
       .map((datas: InterfaceEvent) => {
         return (
           <EventListCard
+            // userEvents={userEvents}
+            userId={userId}
+            creatorId={datas.creator._id}
             key={datas._id}
             id={datas._id}
             eventLocation={datas.location}
@@ -340,6 +348,8 @@ const Calendar: React.FC<InterfaceCalendarProps> = ({
             .map((datas: InterfaceEvent) => {
               return (
                 <EventListCard
+                  userId={userId}
+                  creatorId={datas.creator._id}
                   key={datas._id}
                   id={datas._id}
                   eventLocation={datas.location}
@@ -439,6 +449,7 @@ const Calendar: React.FC<InterfaceCalendarProps> = ({
 
     return days.map((date, index) => {
       const className = [
+        date.getDay() === 0 || date.getDay() === 6 ? styles.day_weekends : '',
         date.toLocaleDateString() === today.toLocaleDateString() //Styling for today day cell
           ? styles.day__today
           : '',
@@ -462,6 +473,8 @@ const Calendar: React.FC<InterfaceCalendarProps> = ({
         .map((datas: InterfaceEvent) => {
           return (
             <EventListCard
+              userId={userId}
+              creatorId={datas.creator._id}
               key={datas._id}
               id={datas._id}
               eventLocation={datas.location}
@@ -532,8 +545,8 @@ const Calendar: React.FC<InterfaceCalendarProps> = ({
           className={styles.calendar__header_month}
           data-testid="current-date"
         >
-          {viewType == ViewType.DAY ? `${currentDate}` : ``}{' '}
-          {months[currentMonth]} {currentYear}
+          {viewType == ViewType.DAY ? `${currentDate}` : ``} {currentYear}
+          <div>{months[currentMonth]}</div>
         </div>
         <Button
           className={styles.button}
@@ -542,34 +555,8 @@ const Calendar: React.FC<InterfaceCalendarProps> = ({
         >
           <ChevronRight />
         </Button>
-        <div>
-          <Button
-            className={styles.btn__today}
-            onClick={handleTodayButton}
-            data-testid="today"
-          >
-            Today
-          </Button>
-        </div>
+
         <div className={styles.flex_grow}></div>
-        <div>
-          <Dropdown onSelect={handleChangeView} className={styles.selectType}>
-            <Dropdown.Toggle variant="success" id="dropdown-basic">
-              {viewType || ViewType.MONTH}
-            </Dropdown.Toggle>
-            <Dropdown.Menu>
-              <Dropdown.Item
-                eventKey={ViewType.MONTH}
-                data-testid="selectMonth"
-              >
-                {ViewType.MONTH}
-              </Dropdown.Item>
-              <Dropdown.Item eventKey={ViewType.DAY} data-testid="selectDay">
-                {ViewType.DAY}
-              </Dropdown.Item>
-            </Dropdown.Menu>
-          </Dropdown>
-        </div>
       </div>
       <div className={`${styles.calendar__scroll} customScroll`}>
         {viewType == ViewType.MONTH ? (

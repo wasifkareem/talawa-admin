@@ -1,5 +1,5 @@
 import type { ChangeEvent } from 'react';
-import React from 'react';
+import React, { useState } from 'react';
 import OrganizationNavbar from 'components/UserPortal/OrganizationNavbar/OrganizationNavbar';
 import OrganizationSidebar from 'components/UserPortal/OrganizationSidebar/OrganizationSidebar';
 import EventCard from 'components/UserPortal/EventCard/EventCard';
@@ -53,6 +53,10 @@ const timeToDayJs = (time: string): Dayjs => {
   const dateTimeString = dayjs().format('YYYY-MM-DD') + ' ' + time;
   return dayjs(dateTimeString, { format: 'YYYY-MM-DD HH:mm:ss' });
 };
+export enum ViewType {
+  DAY = 'Day',
+  MONTH = 'Month',
+}
 
 export default function events(): JSX.Element {
   const { t } = useTranslation('translation', {
@@ -77,9 +81,8 @@ export default function events(): JSX.Element {
   const [isAllDay, setIsAllDay] = React.useState(true);
   const [startTime, setStartTime] = React.useState('08:00:00');
   const [endTime, setEndTime] = React.useState('10:00:00');
-
+  const [viewType, setViewType] = useState<string>(ViewType.MONTH);
   const organizationId = getOrganizationId(window.location.href);
-
   const modes = [t('listView'), t('calendarView')];
 
   const { data, loading, refetch } = useQuery(ORGANIZATION_EVENTS_CONNECTION, {
@@ -88,11 +91,9 @@ export default function events(): JSX.Element {
       title_contains: '',
     },
   });
-
   const { data: orgData } = useQuery(ORGANIZATIONS_LIST, {
     variables: { id: organizationId },
   });
-
   const [create] = useMutation(CREATE_EVENT_MUTATION);
 
   const userId = getItem('id') as string;
@@ -208,9 +209,12 @@ export default function events(): JSX.Element {
     currentPage: 'events',
   };
 
+  const handleChangeView = (item: any): void => {
+    setViewType(item);
+  };
   return (
     <>
-      <OrganizationNavbar {...navbarProps} />
+      {/* <OrganizationNavbar {...navbarProps} /> */}
       <div className={`d-flex flex-row ${styles.containerHeight}`}>
         <UserSidebar />
         <div className={`${styles.colorLight} ${styles.mainContainer}`}>
@@ -235,6 +239,32 @@ export default function events(): JSX.Element {
                 <SearchOutlined className={`${styles.colorWhite}`} />
               </InputGroup.Text>
             </InputGroup>
+            <div>
+              <div>
+                <Dropdown
+                  onSelect={handleChangeView}
+                  className={styles.selectType}
+                >
+                  <Dropdown.Toggle variant="success" id="dropdown-basic">
+                    {viewType || ViewType.MONTH}
+                  </Dropdown.Toggle>
+                  <Dropdown.Menu>
+                    <Dropdown.Item
+                      eventKey={ViewType.MONTH}
+                      data-testid="selectMonth"
+                    >
+                      {ViewType.MONTH}
+                    </Dropdown.Item>
+                    <Dropdown.Item
+                      eventKey={ViewType.DAY}
+                      data-testid="selectDay"
+                    >
+                      {ViewType.DAY}
+                    </Dropdown.Item>
+                  </Dropdown.Menu>
+                </Dropdown>
+              </div>
+            </div>
             <div className={styles.eventActionsContainer}>
               <Button
                 onClick={toggleCreateEventModal}
@@ -242,122 +272,20 @@ export default function events(): JSX.Element {
               >
                 {t('createEvent')}
               </Button>
-              <Dropdown drop="down-centered">
-                <Dropdown.Toggle
-                  className={`${styles.colorPrimary} ${styles.borderNone}`}
-                  variant="success"
-                  id="dropdown-basic"
-                  data-testid={`modeChangeBtn`}
-                >
-                  {modes[mode]}
-                </Dropdown.Toggle>
-                <Dropdown.Menu>
-                  {modes.map((value, index) => {
-                    return (
-                      <Dropdown.Item
-                        key={index}
-                        data-testid={`modeBtn${index}`}
-                        onClick={(): void => setMode(index)}
-                      >
-                        {value}
-                      </Dropdown.Item>
-                    );
-                  })}
-                </Dropdown.Menu>
-              </Dropdown>
             </div>
           </div>
-          {mode === 0 && (
-            <div
-              className={`d-flex flex-column justify-content-between ${styles.content}`}
-            >
-              <div
-                className={`d-flex flex-column ${styles.gap} ${styles.paddingY}`}
-              >
-                {loading ? (
-                  <div className={`d-flex flex-row justify-content-center`}>
-                    <HourglassBottomIcon /> <span>Loading...</span>
-                  </div>
-                ) : (
-                  <>
-                    {events && events.length > 0 ? (
-                      (rowsPerPage > 0
-                        ? events.slice(
-                            page * rowsPerPage,
-                            page * rowsPerPage + rowsPerPage,
-                          )
-                        : /* istanbul ignore next */
-                          events
-                      ).map((event: any) => {
-                        const attendees: any = [];
-                        event.attendees.forEach((attendee: any) => {
-                          const r = {
-                            id: attendee._id,
-                          };
 
-                          attendees.push(r);
-                        });
-
-                        const creator: any = {};
-                        creator.firstName = event.creator.firstName;
-                        creator.lastName = event.creator.lastName;
-                        creator.id = event.creator._id;
-
-                        const cardProps: InterfaceEventCardProps = {
-                          id: event._id,
-                          title: event.title,
-                          description: event.description,
-                          location: event.location,
-                          startDate: event.startDate,
-                          endDate: event.endDate,
-                          isRegisterable: event.isRegisterable,
-                          isPublic: event.isPublic,
-                          endTime: event.endTime,
-                          startTime: event.startTime,
-                          recurring: event.recurring,
-                          allDay: event.allDay,
-                          registrants: attendees,
-                          creator,
-                        };
-
-                        return <EventCard key={event._id} {...cardProps} />;
-                      })
-                    ) : (
-                      <span>{t('nothingToShow')}</span>
-                    )}
-                  </>
-                )}
-              </div>
-              <table>
-                <tbody>
-                  <tr>
-                    <PaginationList
-                      count={
-                        /* istanbul ignore next */
-                        events ? events.length : 0
-                      }
-                      rowsPerPage={rowsPerPage}
-                      page={page}
-                      onPageChange={handleChangePage}
-                      onRowsPerPageChange={handleChangeRowsPerPage}
-                    />
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          )}
-          {mode === 1 && (
-            <div className="mt-4">
-              <EventCalendar
-                eventData={events}
-                orgData={orgData}
-                userRole={userRole}
-                userId={userId}
-              />
-            </div>
-          )}
+          <div className="mt-4">
+            <EventCalendar
+              viewType={viewType}
+              eventData={events}
+              orgData={orgData}
+              userRole={userRole}
+              userId={userId}
+            />
+          </div>
         </div>
-        <OrganizationSidebar />
+        {/* <OrganizationSidebar /> */}
         <Modal show={showCreateEventModal} onHide={toggleCreateEventModal}>
           <Modal.Header>
             <p className={styles.titlemodal}>{t('eventDetails')}</p>

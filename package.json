@@ -21,6 +21,7 @@
     "@pdfme/generator": "^1.2.6",
     "bootstrap": "^5.3.0",
     "customize-cra": "^1.0.0",
+    "date-holidays": "^3.23.9",
     "dayjs": "^1.10.7",
     "flag-icons": "^6.6.6",
     "graphql": "^15.5.1",

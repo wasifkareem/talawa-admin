@@ -67,6 +67,8 @@ async function wait(ms = 100): Promise<void> {
 
 describe('Testing Event List Card', () => {
   const props = {
+    userId: '123',
+    creatorId: '123',
     key: '123',
     id: '1',
     eventLocation: 'India',
@@ -90,6 +92,8 @@ describe('Testing Event List Card', () => {
           <Provider store={store}>
             <I18nextProvider i18n={i18nForTest}>
               <EventListCard
+                userId=""
+                creatorId=""
                 key={''}
                 id={''}
                 eventLocation={''}
@@ -128,6 +132,8 @@ describe('Testing Event List Card', () => {
       <MockedProvider addTypename={false} link={link}>
         <I18nextProvider i18n={i18nForTest}>
           <EventListCard
+            userId=""
+            creatorId=""
             key="123"
             id="1"
             eventName=""
@@ -317,6 +323,8 @@ describe('Testing Event List Card', () => {
       <MockedProvider addTypename={false} link={link}>
         <I18nextProvider i18n={i18nForTest}>
           <EventListCard
+            userId="123"
+            creatorId="123"
             key="123"
             id="1"
             eventName={longEventName}

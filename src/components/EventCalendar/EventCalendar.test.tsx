@@ -27,6 +27,9 @@ const eventData = [
     recurring: false,
     isPublic: true,
     isRegisterable: true,
+    creator: {
+      _id: '12321243476193818',
+    },
   },
   {
     _id: '2',
@@ -41,6 +44,9 @@ const eventData = [
     recurring: false,
     isPublic: true,
     isRegisterable: true,
+    creator: {
+      _id: '12321243476193818',
+    },
   },
 ];
 
@@ -192,6 +198,9 @@ describe('Calendar', () => {
         recurring: false,
         isPublic: true,
         isRegisterable: true,
+        creator: {
+          _id: '12321243476193818',
+        },
       },
     ];
     render(
@@ -270,6 +279,9 @@ describe('Calendar', () => {
         recurring: false,
         isPublic: true,
         isRegisterable: true,
+        creator: {
+          _id: '12321243476193818',
+        },
       },
       {
         _id: '2',
@@ -284,6 +296,9 @@ describe('Calendar', () => {
         recurring: false,
         isPublic: true,
         isRegisterable: true,
+        creator: {
+          _id: '12321243476193818',
+        },
       },
       {
         _id: '3',
@@ -298,6 +313,9 @@ describe('Calendar', () => {
         recurring: false,
         isPublic: true,
         isRegisterable: true,
+        creator: {
+          _id: '12321243476193818',
+        },
       },
     ];
 
@@ -330,6 +348,9 @@ describe('Calendar', () => {
         recurring: false,
         isPublic: true,
         isRegisterable: true,
+        creator: {
+          _id: '12321243476193818',
+        },
       },
       {
         _id: '2',
@@ -344,6 +365,9 @@ describe('Calendar', () => {
         recurring: false,
         isPublic: true,
         isRegisterable: true,
+        creator: {
+          _id: '12321243476193818',
+        },
       },
       {
         _id: '3',
@@ -358,6 +382,9 @@ describe('Calendar', () => {
         recurring: false,
         isPublic: true,
         isRegisterable: true,
+        creator: {
+          _id: '12321243476193818',
+        },
       },
       {
         _id: '4',
@@ -372,6 +399,9 @@ describe('Calendar', () => {
         recurring: false,
         isPublic: true,
         isRegisterable: true,
+        creator: {
+          _id: '12321243476193818',
+        },
       },
       {
         _id: '5',
@@ -386,6 +416,9 @@ describe('Calendar', () => {
         recurring: false,
         isPublic: true,
         isRegisterable: true,
+        creator: {
+          _id: '12321243476193818',
+        },
       },
     ];
     render(
@@ -427,6 +460,9 @@ describe('Calendar', () => {
         recurring: false,
         isPublic: true,
         isRegisterable: true,
+        creator: {
+          _id: '12321243476193818',
+        },
       },
     ];
     render(
@@ -463,6 +499,9 @@ describe('Calendar', () => {
         recurring: false,
         isPublic: true,
         isRegisterable: true,
+        creator: {
+          _id: '12321243476193818',
+        },
       },
       {
         _id: '2',
@@ -477,6 +516,9 @@ describe('Calendar', () => {
         recurring: false,
         isPublic: true,
         isRegisterable: true,
+        creator: {
+          _id: '12321243476193818',
+        },
       },
       {
         _id: '3',
@@ -491,6 +533,9 @@ describe('Calendar', () => {
         recurring: false,
         isPublic: true,
         isRegisterable: true,
+        creator: {
+          _id: '12321243476193818',
+        },
       },
       {
         _id: '4',
@@ -505,6 +550,9 @@ describe('Calendar', () => {
         recurring: false,
         isPublic: true,
         isRegisterable: true,
+        creator: {
+          _id: '12321243476193818',
+        },
       },
       {
         _id: '5',
@@ -519,6 +567,9 @@ describe('Calendar', () => {
         recurring: false,
         isPublic: true,
         isRegisterable: true,
+        creator: {
+          _id: '12321243476193818',
+        },
       },
     ];
     render(
