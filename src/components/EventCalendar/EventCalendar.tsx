@@ -117,18 +117,17 @@ const Calendar: React.FC<InterfaceCalendarProps> = ({
     '10 PM',
     '11 PM',
   ];
-  const hd = new Holidays('US');
-  const holiday = hd.getHolidays();
-  console.log(holiday);
+  // const hd = new Holidays('US');
+  // const holiday = hd.getHolidays();
   // console.log(holiday);
-  const today = new Date('Wed Jun 19 2024 09:30:00 GMT+0530');
-  const check: any = hd.isHoliday(today);
-  console.log(check.map((d: any) => d.name));
+  // // console.log(holiday);
+  // const check: any = hd.isHoliday(today);
+  // console.log(check.map((d: any) => d.name));
+  const today = new Date();
   const [currentDate, setCurrentDate] = useState(today.getDate());
   const [currentMonth, setCurrentMonth] = useState(today.getMonth());
   const [currentYear, setCurrentYear] = useState(today.getFullYear());
   const [events, setEvents] = useState<InterfaceEvent[] | null>(null);
-  const [userEvents, setUserEvents] = useState<InterfaceEvent[] | null>(null);
   const [expanded, setExpanded] = useState<number>(-1);
   const [windowWidth, setWindowWidth] = useState<number>(window.screen.width);
   useEffect(() => {
