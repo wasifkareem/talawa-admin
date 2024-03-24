@@ -154,3 +154,12 @@
     box-shadow 0.2s;
   width: 100%;
 }
+
+.selectType {
+  border-radius: 10px;
+}
+.dropdown__item {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}

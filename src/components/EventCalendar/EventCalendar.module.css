@@ -142,11 +142,7 @@
   margin-left: 20px;
   border: none;
 }
-.selectType {
-  padding: 16px 10px 16px 10px;
-  border-radius: 10px;
-  margin: 0px 5px 0px 5px;
-}
+
 .btn__more {
   border: 0px;
   font-size: 14px;
@@ -210,4 +206,79 @@
   .btn__more {
     font-size: 12px;
   }
+}
+
+.calendar__infocards {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 35px;
+}
+.card__holidays {
+  background-color: rgba(246, 242, 229, 1);
+  display: flex;
+  flex-direction: column;
+  width: 50%;
+  font-family: Outfit;
+  border-radius: 20px;
+  padding: 30px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.month__holidays {
+  display: flex;
+  flex-direction: column;
+}
+.holiday__data {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+}
+.holiday__date {
+  font-size: 20px;
+  color: rgba(234, 183, 86, 1);
+  font-weight: 700;
+}
+.holiday__name {
+  font-size: 20px;
+  margin-left: 35px;
+}
+.card__events {
+  background-color: rgba(244, 244, 244, 1);
+  display: flex;
+  flex-direction: column;
+  width: 50%;
+  font-family: Outfit;
+  border-radius: 20px;
+  padding: 30px;
+}
+.innercard__events {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1rem;
+  p {
+    margin-bottom: 0;
+  }
+}
+.orgEvent__color {
+  height: 15px;
+  width: 40px;
+  background-color: rgba(82, 172, 255, 0.5);
+  border-radius: 10px;
+}
+.holidays__color {
+  height: 15px;
+  width: 40px;
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 10px;
+}
+
+.userEvents__color {
+  height: 15px;
+  width: 40px;
+  background: rgba(146, 200, 141, 0.5);
+  border-radius: 10px;
 }

@@ -5,7 +5,8 @@ import React, { useState, useEffect } from 'react';
 import styles from './EventCalendar.module.css';
 import { ChevronLeft, ChevronRight } from '@mui/icons-material';
 import CurrentHourIndicator from 'components/CurrentHourIndicator/CurrentHourIndicator';
-import Holidays from 'date-holidays';
+import HolidayCard from 'components/HolidayCard/HolidayCard';
+import { render } from '@testing-library/react';
 
 interface InterfaceEvent {
   _id: string;
@@ -30,6 +31,7 @@ interface InterfaceCalendarProps {
   userRole?: string;
   userId?: string;
   viewType?: string;
+  eventType?: string;
 }
 
 enum Status {
@@ -56,8 +58,10 @@ interface InterfaceIEventAttendees {
 }
 
 interface InterfaceIOrgList {
-  admins: { _id: string }[];
-  members: { _id: string }[];
+  organizations: {
+    admins: { _id: string }[];
+    members: { _id: string }[];
+  }[];
 }
 
 const Calendar: React.FC<InterfaceCalendarProps> = ({
@@ -66,6 +70,7 @@ const Calendar: React.FC<InterfaceCalendarProps> = ({
   userRole,
   userId,
   viewType,
+  eventType,
 }) => {
   const [selectedDate] = useState<Date | null>(null);
   const weekdays = [
@@ -117,19 +122,38 @@ const Calendar: React.FC<InterfaceCalendarProps> = ({
     '10 PM',
     '11 PM',
   ];
-  // const hd = new Holidays('US');
-  // const holiday = hd.getHolidays();
-  // console.log(holiday);
-  // // console.log(holiday);
-  // const check: any = hd.isHoliday(today);
-  // console.log(check.map((d: any) => d.name));
+
+  const holidays = [
+    { name: "New Year's Day", date: '01-01', month: 'January' }, // January 1st
+    { name: "Valentine's Day", date: '02-14', month: 'February' }, // February 14th
+    { name: "International Women's Day", date: '03-08', month: 'March' }, // March 8th
+    { name: "April Fools' Day", date: '04-01', month: 'April' }, // April 1st
+    { name: 'May Day / Labour Day', date: '05-01', month: 'May' }, // May 1st
+    { name: "Mother's Day", date: '05-08', month: 'May' }, // Second Sunday in May
+    { name: "Father's Day", date: '06-19', month: 'June' }, // Third Sunday in June
+    { name: 'Independence Day (US)', date: '07-04', month: 'July' }, // July 4th
+    { name: 'Oktoberfest', date: '09-21', month: 'September' }, // September 21st (starts in September, ends in October)
+    { name: 'Halloween', date: '10-31', month: 'October' }, // October 31st
+    { name: 'Diwali', date: '11-04', month: 'November' },
+    {
+      name: 'Remembrance Day / Veterans Day',
+      date: '11-11',
+      month: 'November',
+    },
+    { name: 'Christmas Day', date: '12-25', month: 'December' }, // December 25th
+  ];
+
   const today = new Date();
   const [currentDate, setCurrentDate] = useState(today.getDate());
   const [currentMonth, setCurrentMonth] = useState(today.getMonth());
   const [currentYear, setCurrentYear] = useState(today.getFullYear());
   const [events, setEvents] = useState<InterfaceEvent[] | null>(null);
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const [expanded, setExpanded] = useState<number>(-1);
   const [windowWidth, setWindowWidth] = useState<number>(window.screen.width);
+
+  const adminData = orgData?.organizations.map((org) => org.admins).flat();
+
   useEffect(() => {
     function handleResize(): void {
       setWindowWidth(window.screen.width);
@@ -153,8 +177,8 @@ const Calendar: React.FC<InterfaceCalendarProps> = ({
       eventData?.forEach((event) => {
         if (event.isPublic) data.push(event);
         if (!event.isPublic) {
-          const filteredOrg: boolean | undefined = orgData?.admins?.some(
-            (data) => data._id === userId,
+          const filteredOrg = orgData?.organizations.map((org) =>
+            org.admins.some((data) => data._id === userId),
           );
 
           if (filteredOrg) {
@@ -266,6 +290,7 @@ const Calendar: React.FC<InterfaceCalendarProps> = ({
         return (
           <EventListCard
             // userEvents={userEvents}
+            adminData={adminData}
             userId={userId}
             creatorId={datas.creator._id}
             key={datas._id}
@@ -314,6 +339,7 @@ const Calendar: React.FC<InterfaceCalendarProps> = ({
                     : styles.event_list_hour
                 }
               >
+                {/* <div>Helo</div> */}
                 {expanded === -100
                   ? allDayEventsList
                   : allDayEventsList?.slice(0, 1)}
@@ -336,17 +362,40 @@ const Calendar: React.FC<InterfaceCalendarProps> = ({
           const timeEventsList: any = events
             ?.filter((datas) => {
               const currDate = new Date(currentYear, currentMonth, currentDate);
-
-              if (
-                datas.startTime?.slice(0, 2) == (index % 24).toString() &&
-                datas.startDate == dayjs(currDate).format('YYYY-MM-DD')
+              if (eventType == 'Created By You') {
+                if (
+                  datas.startTime?.slice(0, 2) == (index % 24).toString() &&
+                  datas.startDate == dayjs(currDate).format('YYYY-MM-DD') &&
+                  datas.creator._id == userId
+                ) {
+                  return datas;
+                }
+              } else if (
+                eventType == 'Created By Organizations' &&
+                adminData?.some((admin) => admin._id == datas.creator._id)
               ) {
-                return datas;
+                if (
+                  datas.startTime?.slice(0, 2) == (index % 24).toString() &&
+                  datas.startDate == dayjs(currDate).format('YYYY-MM-DD')
+                ) {
+                  return datas;
+                }
+              } else if (
+                eventType === 'All Events' ||
+                eventType == 'Event Type'
+              ) {
+                if (
+                  datas.startTime?.slice(0, 2) == (index % 24).toString() &&
+                  datas.startDate == dayjs(currDate).format('YYYY-MM-DD')
+                ) {
+                  return datas;
+                }
               }
             })
             .map((datas: InterfaceEvent) => {
               return (
                 <EventListCard
+                  adminData={adminData}
                   userId={userId}
                   creatorId={datas.creator._id}
                   key={datas._id}
@@ -430,6 +479,7 @@ const Calendar: React.FC<InterfaceCalendarProps> = ({
       monthStart.getMonth(),
       monthStart.getDate() - monthStart.getDay(),
     );
+
     const endDate = new Date(
       monthEnd.getFullYear(),
       monthEnd.getMonth(),
@@ -467,13 +517,29 @@ const Calendar: React.FC<InterfaceCalendarProps> = ({
 
       const allEventsList: any = events
         ?.filter((datas) => {
-          if (datas.startDate == dayjs(date).format('YYYY-MM-DD')) return datas;
+          if (eventType === 'Created By You') {
+            if (
+              datas.startDate == dayjs(date).format('YYYY-MM-DD') &&
+              datas.creator._id == userId
+            )
+              return datas;
+          } else if (eventType === 'All Events' || eventType == 'Event Type') {
+            if (datas.startDate == dayjs(date).format('YYYY-MM-DD'))
+              return datas;
+          } else if (
+            eventType === 'Created By Organizations' &&
+            adminData?.some((admin) => admin._id == datas.creator._id)
+          ) {
+            if (datas.startDate == dayjs(date).format('YYYY-MM-DD'))
+              return datas;
+          }
         })
         .map((datas: InterfaceEvent) => {
           return (
             <EventListCard
+              adminData={adminData}
               userId={userId}
-              creatorId={datas.creator._id}
+              creatorId={datas.creator?._id}
               key={datas._id}
               id={datas._id}
               eventLocation={datas.location}
@@ -490,7 +556,13 @@ const Calendar: React.FC<InterfaceCalendarProps> = ({
             />
           );
         });
-
+      const holidayList: any = holidays
+        .filter((holiday) => {
+          if (holiday.date == dayjs(date).format('MM-DD')) return holiday;
+        })
+        .map((holiday) => {
+          return <HolidayCard key={holiday.name} holidayName={holiday.name} />;
+        });
       return (
         <div
           key={index}
@@ -500,34 +572,59 @@ const Calendar: React.FC<InterfaceCalendarProps> = ({
           data-testid="day"
         >
           {date.getDate()}
-          <div
-            className={expanded === index ? styles.expand_list_container : ''}
-          >
+          {date.getMonth() !== currentMonth ? null : (
             <div
-              className={
-                expanded === index
-                  ? styles.expand_event_list
-                  : styles.event_list
-              }
+              className={expanded === index ? styles.expand_list_container : ''}
             >
-              {expanded === index ? allEventsList : allEventsList?.slice(0, 2)}
-            </div>
-            {(allEventsList?.length > 2 ||
-              (windowWidth <= 700 && allEventsList?.length > 0)) && (
-              <button
-                className={styles.btn__more}
-                onClick={() => {
-                  toggleExpand(index);
-                }}
+              <div
+                className={
+                  expanded === index
+                    ? styles.expand_event_list
+                    : styles.event_list
+                }
               >
-                {expanded === index ? 'View less' : 'View all'}
-              </button>
-            )}
-          </div>
+                <div>{holidayList}</div>
+                {expanded === index
+                  ? allEventsList
+                  : holidayList?.length > 0
+                    ? allEventsList?.slice(0, 1)
+                    : allEventsList?.slice(0, 2)}
+              </div>
+              {(allEventsList?.length > 2 ||
+                (windowWidth <= 700 && allEventsList?.length > 0)) && (
+                <button
+                  className={styles.btn__more}
+                  onClick={() => {
+                    toggleExpand(index);
+                  }}
+                >
+                  {expanded === index ? 'View less' : 'View all'}
+                </button>
+              )}
+            </div>
+          )}
         </div>
       );
     });
   };
+
+  const holidayPerMonth: any = holidays
+    .filter((holiday) => {
+      if (holiday.month == months[currentMonth]) return holiday;
+    })
+    .map((holiday) => {
+      return (
+        <div key={holiday.name} className={styles.holiday__data}>
+          <p className={styles.holiday__date}>{holiday.month}</p>
+          <p className={styles.holiday__date}>
+            {holiday.date
+              .substring(holiday.date.indexOf('-') + 1)
+              .replace(/^0+/, '')}
+          </p>
+          <p className={styles.holiday__name}>{holiday.name}</p>
+        </div>
+      );
+    });
 
   return (
     <div className={styles.calendar}>
@@ -559,16 +656,49 @@ const Calendar: React.FC<InterfaceCalendarProps> = ({
       </div>
       <div className={`${styles.calendar__scroll} customScroll`}>
         {viewType == ViewType.MONTH ? (
-          <div>
-            <div className={styles.calendar__weekdays}>
-              {weekdays.map((weekday, index) => (
-                <div key={index} className={styles.weekday}>
-                  {weekday}
-                </div>
-              ))}
+          <>
+            <div>
+              <div className={styles.calendar__weekdays}>
+                {weekdays.map((weekday, index) => (
+                  <div key={index} className={styles.weekday}>
+                    {weekday}
+                  </div>
+                ))}
+              </div>
+              <div className={styles.calendar__days}>{renderDays()}</div>
             </div>
-            <div className={styles.calendar__days}>{renderDays()}</div>
-          </div>
+            <div className={styles.calendar__infocards}>
+              <div className={styles.card__holidays}>
+                <h1>Holidays</h1>
+                <div>
+                  <div className={styles.month__holidays}>
+                    {holidayPerMonth}
+                  </div>
+                </div>
+              </div>
+              <div className={styles.card__events}>
+                <h1>Events</h1>
+                <div className={styles.innercard__events}>
+                  <div className={styles.orgEvent__color}></div>
+                  <div>
+                    <p>Events Created by Organization</p>
+                  </div>
+                </div>
+                <div className={styles.innercard__events}>
+                  <div className={styles.holidays__color}></div>
+                  <div>
+                    <p>Holidays</p>
+                  </div>
+                </div>
+                <div className={styles.innercard__events}>
+                  <div className={styles.userEvents__color}></div>
+                  <div>
+                    <p>Events Created By user</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </>
         ) : (
           <div className={styles.clendar__hours}>{renderHours()}</div>
         )}

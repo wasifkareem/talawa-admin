@@ -2,7 +2,7 @@ import type { ChangeEvent } from 'react';
 import React, { useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
-import { Form } from 'react-bootstrap';
+import { Dropdown, Form } from 'react-bootstrap';
 import { useMutation, useQuery } from '@apollo/client';
 import { toast } from 'react-toastify';
 import { useTranslation } from 'react-i18next';
@@ -20,6 +20,12 @@ import { errorHandler } from 'utils/errorHandler';
 import Loader from 'components/Loader/Loader';
 import OrganizationScreen from 'components/OrganizationScreen/OrganizationScreen';
 import useLocalStorage from 'utils/useLocalstorage';
+import getOrganizationId from 'utils/getOrganizationId';
+
+export enum ViewType {
+  DAY = 'Day',
+  MONTH = 'Month',
+}
 
 const timeToDayJs = (time: string): Dayjs => {
   const dateTimeString = dayjs().format('YYYY-MM-DD') + ' ' + time;
@@ -38,6 +44,7 @@ function organizationEvents(): JSX.Element {
 
   const [startDate, setStartDate] = React.useState<Date | null>(new Date());
   const [endDate, setEndDate] = React.useState<Date | null>(new Date());
+  const [viewType, setViewType] = useState<string>(ViewType.MONTH);
 
   const [alldaychecked, setAllDayChecked] = React.useState(true);
   const [recurringchecked, setRecurringChecked] = React.useState(false);
@@ -61,6 +68,10 @@ function organizationEvents(): JSX.Element {
   const hideInviteModal = (): void => {
     setEventModalIsOpen(false);
   };
+  const handleChangeView = (item: any): void => {
+    setViewType(item);
+  };
+  const organizationId = getOrganizationId(window.location.href);
 
   const { data, loading, error, refetch } = useQuery(
     ORGANIZATION_EVENT_CONNECTION_LIST,
@@ -145,9 +156,9 @@ function organizationEvents(): JSX.Element {
   }
 
   /* istanbul ignore next */
-  if (error) {
-    window.location.assign('/orglist');
-  }
+  // if (error) {
+  //   window.location.assign('/orglist');
+  // }
 
   /* istanbul ignore next */
 
@@ -166,8 +177,27 @@ function organizationEvents(): JSX.Element {
               <i className="fa fa-plus"></i> {t('addEvent')}
             </Button>
           </div>
+          <div>
+            <Dropdown onSelect={handleChangeView} className={styles.selectType}>
+              <Dropdown.Toggle variant="success" id="dropdown-basic">
+                {viewType || ViewType.MONTH}
+              </Dropdown.Toggle>
+              <Dropdown.Menu>
+                <Dropdown.Item
+                  eventKey={ViewType.MONTH}
+                  data-testid="selectMonth"
+                >
+                  {ViewType.MONTH}
+                </Dropdown.Item>
+                <Dropdown.Item eventKey={ViewType.DAY} data-testid="selectDay">
+                  {ViewType.DAY}
+                </Dropdown.Item>
+              </Dropdown.Menu>
+            </Dropdown>
+          </div>
         </div>
         <EventCalendar
+          viewType={viewType}
           eventData={data?.eventsByOrganizationConnection}
           orgData={orgData}
           userRole={userRole}

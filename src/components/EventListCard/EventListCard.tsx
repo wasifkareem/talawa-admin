@@ -19,6 +19,7 @@ interface InterfaceEventListCardProps {
   id: string;
   userId: string | undefined;
   creatorId: string;
+  adminData?: { _id: string }[] | undefined;
   eventLocation: string;
   eventName: string;
   eventDescription: string;
@@ -50,6 +51,9 @@ function eventListCard(props: InterfaceEventListCardProps): JSX.Element {
     startTime: '08:00:00',
     endTime: '18:00:00',
   });
+  const isAdmin = props?.adminData?.some(
+    (admin) => admin._id == props.creatorId,
+  );
   const showViewModal = (): void => {
     setEventModalIsOpen(true);
   };
@@ -140,13 +144,13 @@ function eventListCard(props: InterfaceEventListCardProps): JSX.Element {
   const openEventDashboard = (): void => {
     history.push(`/event/${props.id}`);
   };
+
   return (
     <>
       <div
         className={styles.cards}
         style={{
-          backgroundColor:
-            props.creatorId === props.userId ? '#d9d9d9' : '#a8d5ff',
+          backgroundColor: isAdmin ? '#a8d5ff' : '#d9d9d9',
         }}
         onClick={showViewModal}
         data-testid="card"

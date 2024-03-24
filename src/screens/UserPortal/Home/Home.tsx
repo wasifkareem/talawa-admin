@@ -149,11 +149,11 @@ export default function home(): JSX.Element {
     setPostContent(content);
   };
 
-  // React.useEffect(() => {
-  //   if (data) {
-  //     setPosts(data.organizaitons[0].posts.edges);
-  //   }
-  // }, [data]);
+  React.useEffect(() => {
+    if (data) {
+      setPosts(data.organizaitons[0].posts.edges);
+    }
+  }, [data]);
 
   React.useEffect(() => {
     if (promotedPostsData) {

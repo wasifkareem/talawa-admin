@@ -57,6 +57,11 @@ export enum ViewType {
   DAY = 'Day',
   MONTH = 'Month',
 }
+export enum EventType {
+  TOTAL = 'All Events',
+  ORG = 'Created By Organizations',
+  USER = 'Created By You',
+}
 
 export default function events(): JSX.Element {
   const { t } = useTranslation('translation', {
@@ -82,6 +87,7 @@ export default function events(): JSX.Element {
   const [startTime, setStartTime] = React.useState('08:00:00');
   const [endTime, setEndTime] = React.useState('10:00:00');
   const [viewType, setViewType] = useState<string>(ViewType.MONTH);
+  const [eventType, setEventType] = useState<string>('Event Type');
   const organizationId = getOrganizationId(window.location.href);
   const modes = [t('listView'), t('calendarView')];
 
@@ -212,6 +218,9 @@ export default function events(): JSX.Element {
   const handleChangeView = (item: any): void => {
     setViewType(item);
   };
+  const handleEvents = (item: any): void => {
+    setEventType(item);
+  };
   return (
     <>
       {/* <OrganizationNavbar {...navbarProps} /> */}
@@ -265,6 +274,36 @@ export default function events(): JSX.Element {
                 </Dropdown>
               </div>
             </div>
+            <div>
+              <Dropdown onSelect={handleEvents} className={styles.selectType}>
+                <Dropdown.Toggle variant="success" id="dropdown-basic">
+                  {eventType === 'Created By Organizations'
+                    ? 'Created By Org...'
+                    : eventType}
+                </Dropdown.Toggle>
+                <Dropdown.Menu>
+                  <Dropdown.Item
+                    eventKey={EventType.TOTAL}
+                    data-testid="allEvents"
+                  >
+                    {EventType.TOTAL}
+                  </Dropdown.Item>
+                  <Dropdown.Item
+                    className={styles.dropdown__item}
+                    eventKey={EventType.ORG}
+                    data-testid="orgEvents"
+                  >
+                    {EventType.ORG}
+                  </Dropdown.Item>
+                  <Dropdown.Item
+                    eventKey={EventType.USER}
+                    data-testid="userEvents"
+                  >
+                    {EventType.USER}
+                  </Dropdown.Item>
+                </Dropdown.Menu>
+              </Dropdown>
+            </div>
             <div className={styles.eventActionsContainer}>
               <Button
                 onClick={toggleCreateEventModal}
@@ -277,6 +316,7 @@ export default function events(): JSX.Element {
 
           <div className="mt-4">
             <EventCalendar
+              eventType={eventType}
               viewType={viewType}
               eventData={events}
               orgData={orgData}

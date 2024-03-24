@@ -69,6 +69,7 @@ describe('Testing Event List Card', () => {
   const props = {
     userId: '123',
     creatorId: '123',
+    adminData: [{ _id: '123' }],
     key: '123',
     id: '1',
     eventLocation: 'India',
@@ -94,6 +95,7 @@ describe('Testing Event List Card', () => {
               <EventListCard
                 userId=""
                 creatorId=""
+                adminData={[{ _id: '' }]}
                 key={''}
                 id={''}
                 eventLocation={''}
@@ -134,6 +136,7 @@ describe('Testing Event List Card', () => {
           <EventListCard
             userId=""
             creatorId=""
+            adminData={[{ _id: '' }]}
             key="123"
             id="1"
             eventName=""
@@ -325,6 +328,7 @@ describe('Testing Event List Card', () => {
           <EventListCard
             userId="123"
             creatorId="123"
+            adminData={[{ _id: '' }]}
             key="123"
             id="1"
             eventName={longEventName}
