@@ -6,7 +6,6 @@ import styles from './EventCalendar.module.css';
 import { ChevronLeft, ChevronRight } from '@mui/icons-material';
 import CurrentHourIndicator from 'components/CurrentHourIndicator/CurrentHourIndicator';
 import HolidayCard from 'components/HolidayCard/HolidayCard';
-import { render } from '@testing-library/react';
 
 interface InterfaceEvent {
   _id: string;
