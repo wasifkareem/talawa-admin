@@ -4,6 +4,11 @@
 
 ## Table of contents
 
+### Enumerations
+
+- [EventType](../enums/screens_UserPortal_Events_Events.EventType.md)
+- [ViewType](../enums/screens_UserPortal_Events_Events.ViewType.md)
+
 ### Functions
 
 - [default](screens_UserPortal_Events_Events.md#default)
@@ -20,4 +25,4 @@
 
 #### Defined in
 
-[src/screens/UserPortal/Events/Events.tsx:50](https://github.com/PalisadoesFoundation/talawa-admin/blob/12d9229/src/screens/UserPortal/Events/Events.tsx#L50)
+[src/screens/UserPortal/Events/Events.tsx:66](https://github.com/wasifkareem/talawa-admin/blob/fcbba3f/src/screens/UserPortal/Events/Events.tsx#L66)
